@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Fee & Breakeven Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-light: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-color: #f8fafc;
+            --dark-color: #1e293b;
+            --gray-color: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: var(--gray-color);
+            font-size: 1.1rem;
+        }
+
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 992px) {
+            .calculator {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .input-section, .output-section {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .input-with-suffix {
+            position: relative;
+        }
+
+        .input-with-suffix input {
+            width: 100%;
+            padding-right: 40px;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-color);
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .toggle-group {
+            display: flex;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background-color: #f8fafc;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-weight: 500;
+        }
+
+        .toggle-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .toggle-btn:not(.active):hover {
+            background-color: #e2e8f0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--dark-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #0da271;
+        }
+
+        .results {
+            margin-top: 25px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-weight: 700;
+            color: var(--primary-color);
+            text-align: right;
+        }
+
+        .highlight-box {
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-top: 20px;
+        }
+
+        .highlight-box .result-value {
+            font-size: 1.5rem;
+            color: var(--success-color);
+        }
+
+        .scenario-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .scenario-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: left;
+            padding: 12px 15px;
+        }
+
+        .scenario-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .scenario-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .scenario-table tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        .profit-positive {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .profit-negative {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
+        .input-hint {
+            font-size: 0.85rem;
+            color: var(--gray-color);
+            margin-top: 5px;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .input-section, .output-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Trading Fee & Breakeven Calculator</h1>
+            <p class="subtitle">Hitung biaya trading, titik impas, dan potensi profit dengan akurat</p>
+        </header>
+        
+        <div class="alert alert-error" id="errorAlert">
+            <i class="fas fa-exclamation-circle"></i> <span id="errorMessage">Terjadi kesalahan. Harap periksa input Anda.</span>
+        </div>
+        
+        <div class="alert alert-success" id="successAlert">
+            <i class="fas fa-check-circle"></i> <span id="successMessage">Hasil berhasil disalin ke clipboard!</span>
+        </div>
+        
+        <div class="calculator">
+            <section class="input-section">
+                <h2 class="section-title"><i class="fas fa-edit"></i> Input Parameter</h2>
+                
+                <div class="form-group">
+                    <label for="buyPrice" class="required">Harga Beli per Saham (Rp)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="buyPrice" min="0" step="any" placeholder="Misal: 1500" value="1500">
+                        <span class="suffix">Rp</span>
+                    </div>
+                    <p class="input-hint">Harga per lembar saham saat pembelian</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantityType" class="required">Jumlah dalam</label>
+                    <div class="toggle-group" id="quantityType">
+                        <button type="button" class="toggle-btn active" data-value="lot">Lot</button>
+                        <button type="button" class="toggle-btn" data-value="unit">Unit/Lembar</button>
+                    </div>
+                    <p class="input-hint">1 lot = 100 lembar saham</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity" class="required">Jumlah</label>
+                    <input type="number" id="quantity" min="1" step="1" placeholder="Misal: 10" value="10">
+                    <p class="input-hint" id="quantityHint">10 lot = 1000 lembar saham</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buyFee">Fee Beli (%)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="buyFee" min="0" step="0.01" placeholder="0.15" value="0.15">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sellFee">Fee Jual (%)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="sellFee" min="0" step="0.01" placeholder="0.25" value="0.25">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="taxFee">Pajak Penjualan (%)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="taxFee" min="0" step="0.01" placeholder="0.10" value="0.10">
+                        <span class="suffix">%</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stampDuty">Biaya Materai (Rp)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="stampDuty" min="0" step="1000" placeholder="0" value="0">
+                        <span class="suffix">Rp</span>
+                    </div>
+                    <p class="input-hint">Biaya materai (jika ada), biasanya Rp 0, Rp 3.000, atau Rp 6.000</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="targetProfit">Target Profit (%)</label>
+                    <div class="input-with-suffix">
+                        <input type="number" id="targetProfit" min="0" step="0.1" placeholder="5.0" value="5.0">
+                        <span class="suffix">%</span>
+                    </div>
+                    <p class="input-hint">Target persentase keuntungan yang ingin dicapai</p>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" id="calculateBtn" class="btn-primary">
+                        <i class="fas fa-calculator"></i> Hitung
+                    </button>
+                    <button type="button" id="resetBtn" class="btn-secondary">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" id="copyResultsBtn" class="btn-success">
+                        <i class="fas fa-copy"></i> Salin Hasil
+                    </button>
+                    <button type="button" id="saveSettingsBtn" class="btn-secondary">
+                        <i class="fas fa-save"></i> Simpan Pengaturan
+                    </button>
+                </div>
+            </section>
+            
+            <section class="output-section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> Hasil Perhitungan</h2>
+                
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Nilai Transaksi Beli</span>
+                        <span class="result-value" id="buyValue">Rp 0</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Nilai Transaksi Jual (Target)</span>
+                        <span class="result-value" id="sellValueTarget">Rp 0</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Biaya Beli</span>
+                        <span class="result-value" id="buyFeeAmount">Rp 0 (0%)</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Biaya Jual</span>
+                        <span class="result-value" id="sellFeeAmount">Rp 0 (0%)</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Pajak Jual</span>
+                        <span class="result-value" id="taxAmount">Rp 0</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Biaya Materai</span>
+                        <span class="result-value" id="stampDutyAmount">Rp 0</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Biaya Total Roundtrip</span>
+                        <span class="result-value" id="totalCost">Rp 0 (0%)</span>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <div class="result-item">
+                            <span class="result-label">Harga Breakeven per Saham</span>
+                            <span class="result-value" id="breakevenPrice">Rp 0</span>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span class="result-label">Minimal Kenaikan untuk Impas</span>
+                            <span class="result-value" id="breakevenPercent">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <div class="result-item">
+                            <span class="result-label">Profit Bersih (Target {target}%)</span>
+                            <span class="result-value" id="netProfit">Rp 0</span>
+                        </div>
+                        
+                        <div class="result-item">
+                            <span class="result-label">Profit Bersih (%)</span>
+                            <span class="result-value" id="netProfitPercent">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <h3 class="section-title" style="margin-top: 30px; font-size: 1.2rem;">
+                    <i class="fas fa-table"></i> Skenario Profit
+                </h3>
+                
+                <table class="scenario-table">
+                    <thead>
+                        <tr>
+                            <th>Target Profit</th>
+                            <th>Harga Jual</th>
+                            <th>Profit Bersih</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scenarioTableBody">
+                        <!-- Akan diisi oleh JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+        
+        <footer>
+            <p>© 2023 Trading Fee & Breakeven Calculator v1.0</p>
+            <p>Kalkulator ini memberikan perhitungan estimasi. Hasil aktual mungkin berbeda tergantung broker dan ketentuan yang berlaku.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Konstanta
+        const LOT_SIZE = 100; // 1 lot = 100 lembar
+        
+        // Elemen DOM
+        const buyPriceInput = document.getElementById('buyPrice');
+        const quantityTypeToggle = document.getElementById('quantityType');
+        const quantityInput = document.getElementById('quantity');
+        const quantityHint = document.getElementById('quantityHint');
+        const buyFeeInput = document.getElementById('buyFee');
+        const sellFeeInput = document.getElementById('sellFee');
+        const taxFeeInput = document.getElementById('taxFee');
+        const stampDutyInput = document.getElementById('stampDuty');
+        const targetProfitInput = document.getElementById('targetProfit');
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const copyResultsBtn = document.getElementById('copyResultsBtn');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        
+        // Elemen hasil
+        const buyValueEl = document.getElementById('buyValue');
+        const sellValueTargetEl = document.getElementById('sellValueTarget');
+        const buyFeeAmountEl = document.getElementById('buyFeeAmount');
+        const sellFeeAmountEl = document.getElementById('sellFeeAmount');
+        const taxAmountEl = document.getElementById('taxAmount');
+        const stampDutyAmountEl = document.getElementById('stampDutyAmount');
+        const totalCostEl = document.getElementById('totalCost');
+        const breakevenPriceEl = document.getElementById('breakevenPrice');
+        const breakevenPercentEl = document.getElementById('breakevenPercent');
+        const netProfitEl = document.getElementById('netProfit');
+        const netProfitPercentEl = document.getElementById('netProfitPercent');
+        const scenarioTableBody = document.getElementById('scenarioTableBody');
+        
+        // State aplikasi
+        let quantityType = 'lot'; // 'lot' atau 'unit'
+        let calculationResults = null;
+        
+        // Inisialisasi
+        function init() {
+            // Load saved settings from localStorage
+            loadSettings();
+            
+            // Update quantity hint berdasarkan tipe
+            updateQuantityHint();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Hitung secara otomatis dengan nilai default
+            calculate();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Toggle untuk tipe jumlah (lot/unit)
+            const toggleButtons = quantityTypeToggle.querySelectorAll('.toggle-btn');
+            toggleButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Hapus kelas active dari semua tombol
+                    toggleButtons.forEach(b => b.classList.remove('active'));
+                    // Tambah kelas active ke tombol yang diklik
+                    btn.classList.add('active');
+                    // Update tipe jumlah
+                    quantityType = btn.dataset.value;
+                    // Update hint
+                    updateQuantityHint();
+                    // Hitung ulang
+                    calculate();
+                });
+            });
+            
+            // Tombol hitung
+            calculateBtn.addEventListener('click', calculate);
+            
+            // Input field: hitung saat tekan Enter
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') {
+                        calculate();
+                    }
+                });
+                
+                // Validasi input saat berubah
+                input.addEventListener('change', validateInput);
+            });
+            
+            // Tombol reset
+            resetBtn.addEventListener('click', resetForm);
+            
+            // Tombol salin hasil
+            copyResultsBtn.addEventListener('click', copyResultsToClipboard);
+            
+            // Tombol simpan pengaturan
+            saveSettingsBtn.addEventListener('click', saveSettings);
+            
+            // Update hint saat jumlah berubah
+            quantityInput.addEventListener('input', updateQuantityHint);
+        }
+        
+        // Update hint untuk jumlah
+        function updateQuantityHint() {
+            const quantity = parseFloat(quantityInput.value) || 0;
+            if (quantityType === 'lot') {
+                quantityHint.textContent = `${quantity} lot = ${quantity * LOT_SIZE} lembar saham`;
+            } else {
+                quantityHint.textContent = `${quantity} lembar saham`;
+            }
+        }
+        
+        // Validasi input
+        function validateInput() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                
+                // Cek apakah nilai negatif
+                if (value < 0) {
+                    showError(`Nilai ${input.previousElementSibling.textContent} tidak boleh negatif`);
+                    input.classList.add('error');
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                }
+                
+                // Cek apakah required field kosong
+                if (input.hasAttribute('required') && (isNaN(value) || value <= 0)) {
+                    showError(`${input.previousElementSibling.textContent} harus diisi dengan nilai positif`);
+                    isValid = false;
+                }
+            });
+            
+            return isValid;
+        }
+        
+        // Fungsi utama perhitungan
+        function calculate() {
+            // Validasi input
+            if (!validateInput()) {
+                return;
+            }
+            
+            try {
+                // Ambil nilai dari input
+                const buyPrice = parseFloat(buyPriceInput.value);
+                const quantity = parseFloat(quantityInput.value);
+                const buyFeePercent = parseFloat(buyFeeInput.value) / 100;
+                const sellFeePercent = parseFloat(sellFeeInput.value) / 100;
+                const taxPercent = parseFloat(taxFeeInput.value) / 100;
+                const stampDuty = parseFloat(stampDutyInput.value);
+                const targetProfitPercent = parseFloat(targetProfitInput.value) / 100;
+                
+                // Hitung jumlah saham berdasarkan tipe (lot atau unit)
+                let shares;
+                if (quantityType === 'lot') {
+                    shares = quantity * LOT_SIZE;
+                } else {
+                    shares = quantity;
+                }
+                
+                // 1. Nilai transaksi beli
+                const buyValue = buyPrice * shares;
+                
+                // 2. Biaya beli
+                const buyFeeAmount = buyValue * buyFeePercent;
+                
+                // 3. Hitung harga breakeven
+                // Rumus: harga_breakeven = (harga_beli * (1 + fee_beli) + (materai / jumlah_saham)) / (1 - fee_jual - pajak)
+                const breakevenPrice = (buyPrice * (1 + buyFeePercent) + (stampDuty / shares)) / (1 - sellFeePercent - taxPercent);
+                
+                // 4. Hitung persentase kenaikan untuk impas
+                const breakevenPercent = ((breakevenPrice - buyPrice) / buyPrice) * 100;
+                
+                // 5. Hitung biaya jual di titik breakeven
+                const sellValueBreakeven = breakevenPrice * shares;
+                const sellFeeAmount = sellValueBreakeven * sellFeePercent;
+                const taxAmount = sellValueBreakeven * taxPercent;
+                
+                // 6. Biaya total roundtrip
+                const totalCost = buyFeeAmount + sellFeeAmount + taxAmount + stampDuty;
+                const totalCostPercent = (totalCost / buyValue) * 100;
+                
+                // 7. Hitung untuk target profit
+                const targetSellPrice = buyPrice * (1 + targetProfitPercent);
+                const targetSellValue = targetSellPrice * shares;
+                const targetSellFeeAmount = targetSellValue * sellFeePercent;
+                const targetTaxAmount = targetSellValue * taxPercent;
+                const targetTotalCost = buyFeeAmount + targetSellFeeAmount + targetTaxAmount + stampDuty;
+                const netProfit = (targetSellPrice - buyPrice) * shares - targetTotalCost;
+                const netProfitPercent = (netProfit / buyValue) * 100;
+                
+                // Simpan hasil untuk digunakan di fungsi lain
+                calculationResults = {
+                    buyValue,
+                    buyFeeAmount,
+                    breakevenPrice,
+                    breakevenPercent,
+                    sellValueBreakeven,
+                    sellFeeAmount,
+                    taxAmount,
+                    totalCost,
+                    totalCostPercent,
+                    targetSellPrice,
+                    targetSellValue,
+                    targetSellFeeAmount,
+                    targetTaxAmount,
+                    netProfit,
+                    netProfitPercent,
+                    shares,
+                    buyPrice
+                };
+                
+                // Tampilkan hasil
+                displayResults();
+                
+                // Hitung dan tampilkan skenario
+                calculateScenarios();
+                
+                // Sembunyikan error jika ada
+                hideError();
+                
+            } catch (error) {
+                console.error('Error dalam perhitungan:', error);
+                showError('Terjadi kesalahan dalam perhitungan. Periksa input Anda.');
+            }
+        }
+        
+        // Tampilkan hasil perhitungan
+        function displayResults() {
+            if (!calculationResults) return;
+            
+            const {
+                buyValue,
+                buyFeeAmount,
+                breakevenPrice,
+                breakevenPercent,
+                sellValueBreakeven,
+                sellFeeAmount,
+                taxAmount,
+                totalCost,
+                totalCostPercent,
+                targetSellValue,
+                targetSellFeeAmount,
+                targetTaxAmount,
+                netProfit,
+                netProfitPercent,
+                shares,
+                buyPrice
+            } = calculationResults;
+            
+            // Format angka ke Rupiah
+            const formatRupiah = (value) => {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value);
+            };
+            
+            // Format persentase
+            const formatPercent = (value) => {
+                return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+            };
+            
+            // Tampilkan hasil
+            buyValueEl.textContent = formatRupiah(buyValue);
+            sellValueTargetEl.textContent = formatRupiah(targetSellValue);
+            buyFeeAmountEl.textContent = `${formatRupiah(buyFeeAmount)} (${(buyFeeAmount / buyValue * 100).toFixed(2)}%)`;
+            sellFeeAmountEl.textContent = `${formatRupiah(targetSellFeeAmount)} (${(targetSellFeeAmount / targetSellValue * 100).toFixed(2)}%)`;
+            taxAmountEl.textContent = formatRupiah(targetTaxAmount);
+            stampDutyAmountEl.textContent = formatRupiah(parseFloat(stampDutyInput.value));
+            totalCostEl.textContent = `${formatRupiah(totalCost)} (${totalCostPercent.toFixed(2)}%)`;
+            breakevenPriceEl.textContent = formatRupiah(breakevenPrice);
+            breakevenPercentEl.textContent = formatPercent(breakevenPercent);
+            
+            // Format profit dengan warna
+            const profitClass = netProfit >= 0 ? 'profit-positive' : 'profit-negative';
+            netProfitEl.textContent = formatRupiah(netProfit);
+            netProfitEl.className = `result-value ${profitClass}`;
+            
+            netProfitPercentEl.textContent = formatPercent(netProfitPercent);
+            netProfitPercentEl.className = `result-value ${profitClass}`;
+            
+            // Update teks target profit
+            const targetProfitPercent = parseFloat(targetProfitInput.value);
+            document.querySelector('#netProfit').previousElementSibling.innerHTML = 
+                `Profit Bersih (Target ${targetProfitPercent}%)`;
+        }
+        
+        // Hitung skenario untuk tabel
+        function calculateScenarios() {
+            if (!calculationResults) return;
+            
+            const { buyPrice, shares, buyFeeAmount } = calculationResults;
+            const sellFeePercent = parseFloat(sellFeeInput.value) / 100;
+            const taxPercent = parseFloat(taxFeeInput.value) / 100;
+            const stampDuty = parseFloat(stampDutyInput.value);
+            
+            // Target profit untuk skenario
+            const scenarios = [0.5, 1.0, 2.0, 5.0, 10.0];
+            
+            // Kosongkan tabel
+            scenarioTableBody.innerHTML = '';
+            
+            // Format Rupiah helper
+            const formatRupiah = (value) => {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value);
+            };
+            
+            // Tambahkan baris untuk setiap skenario
+            scenarios.forEach(targetPercent => {
+                // Hitung harga jual untuk target ini
+                const targetSellPrice = buyPrice * (1 + targetPercent / 100);
+                const targetSellValue = targetSellPrice * shares;
+                
+                // Hitung biaya
+                const targetSellFeeAmount = targetSellValue * sellFeePercent;
+                const targetTaxAmount = targetSellValue * taxPercent;
+                const targetTotalCost = buyFeeAmount + targetSellFeeAmount + targetTaxAmount + stampDuty;
+                
+                // Hitung profit bersih
+                const netProfit = (targetSellPrice - buyPrice) * shares - targetTotalCost;
+                
+                // Tentukan kelas untuk profit (positif/negatif)
+                const profitClass = netProfit >= 0 ? 'profit-positive' : 'profit-negative';
+                
+                // Buat baris tabel
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${targetPercent >= 0 ? '+' : ''}${targetPercent.toFixed(1)}%</td>
+                    <td>${formatRupiah(targetSellPrice)}</td>
+                    <td class="${profitClass}">${formatRupiah(netProfit)}</td>
+                `;
+                
+                scenarioTableBody.appendChild(row);
+            });
+        }
+        
+        // Reset form ke nilai default
+        function resetForm() {
+            // Reset input values
+            buyPriceInput.value = 1500;
+            quantityInput.value = 10;
+            buyFeeInput.value = 0.15;
+            sellFeeInput.value = 0.25;
+            taxFeeInput.value = 0.10;
+            stampDutyInput.value = 0;
+            targetProfitInput.value = 5.0;
+            
+            // Reset toggle ke lot
+            const toggleButtons = quantityTypeToggle.querySelectorAll('.toggle-btn');
+            toggleButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.value === 'lot') {
+                    btn.classList.add('active');
+                    quantityType = 'lot';
+                }
+            });
+            
+            // Update hint
+            updateQuantityHint();
+            
+            // Hitung ulang
+            calculate();
+            
+            // Tampilkan pesan sukses
+            showSuccess('Form telah direset ke nilai default');
+        }
+        
+        // Salin hasil ke clipboard
+        function copyResultsToClipboard() {
+            if (!calculationResults) {
+                showError('Tidak ada hasil untuk disalin. Silakan hitung terlebih dahulu.');
+                return;
+            }
+            
+            const {
+                buyValue,
+                breakevenPrice,
+                breakevenPercent,
+                totalCost,
+                totalCostPercent,
+                netProfit,
+                netProfitPercent
+            } = calculationResults;
+            
+            // Format angka
+            const formatRupiah = (value) => {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(value);
+            };
+            
+            // Buat teks ringkasan
+            const summaryText = `Ringkasan Perhitungan Trading:
+            
+Harga Beli: ${formatRupiah(parseFloat(buyPriceInput.value))} per saham
+Jumlah: ${quantityInput.value} ${quantityType === 'lot' ? 'lot' : 'lembar'}
+            
+Nilai Transaksi Beli: ${formatRupiah(buyValue)}
+Biaya Total Roundtrip: ${formatRupiah(totalCost)} (${totalCostPercent.toFixed(2)}%)
+Harga Breakeven per Saham: ${formatRupiah(breakevenPrice)}
+Kenaikan Minimal untuk Impas: ${breakevenPercent >= 0 ? '+' : ''}${breakevenPercent.toFixed(2)}%
+Profit Bersih (Target ${targetProfitInput.value}%): ${formatRupiah(netProfit)} (${netProfitPercent >= 0 ? '+' : ''}${netProfitPercent.toFixed(2)}%)
+            
+Dihitung dengan Trading Fee & Breakeven Calculator`;
+            
+            // Salin ke clipboard
+            navigator.clipboard.writeText(summaryText)
+                .then(() => {
+                    showSuccess('Hasil berhasil disalin ke clipboard!');
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin ke clipboard:', err);
+                    showError('Gagal menyalin hasil. Silakan coba lagi.');
+                });
+        }
+        
+        // Simpan pengaturan ke localStorage
+        function saveSettings() {
+            const settings = {
+                buyFee: buyFeeInput.value,
+                sellFee: sellFeeInput.value,
+                taxFee: taxFeeInput.value,
+                stampDuty: stampDutyInput.value,
+                quantityType: quantityType
+            };
+            
+            localStorage.setItem('tradingCalculatorSettings', JSON.stringify(settings));
+            showSuccess('Pengaturan berhasil disimpan!');
+        }
+        
+        // Load pengaturan dari localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('tradingCalculatorSettings');
+            
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    
+                    if (settings.buyFee) buyFeeInput.value = settings.buyFee;
+                    if (settings.sellFee) sellFeeInput.value = settings.sellFee;
+                    if (settings.taxFee) taxFeeInput.value = settings.taxFee;
+                    if (settings.stampDuty) stampDutyInput.value = settings.stampDuty;
+                    
+                    if (settings.quantityType) {
+                        quantityType = settings.quantityType;
+                        const toggleButtons = quantityTypeToggle.querySelectorAll('.toggle-btn');
+                        toggleButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.dataset.value === settings.quantityType) {
+                                btn.classList.add('active');
+                            }
+                        });
+                        updateQuantityHint();
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading settings:', error);
+                }
+            }
+        }
+        
+        // Tampilkan pesan error
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorAlert.style.display = 'block';
+            
+            // Sembunyikan setelah 5 detik
+            setTimeout(hideError, 5000);
+        }
+        
+        // Sembunyikan pesan error
+        function hideError() {
+            errorAlert.style.display = 'none';
+        }
+        
+        // Tampilkan pesan sukses
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successAlert.style.display = 'block';
+            
+            // Sembunyikan setelah 3 detik
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Inisialisasi aplikasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
